@@ -1,14 +1,17 @@
-{ 
-    "name": "CloudCMSElectron", 
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "start": "electron ."
-    },
-    "author": "",
-    "license": "MIT",
-    "devDependencies": {
-        "electron-prebuilt": "^1.2.5"
-    }
+{
+  "name": "CloudCMSElectron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron-prebuilt": "^1.2.5"
+  },
+  "dependencies": {
+    "gitana": "^1.0.224"
+  }
 }
