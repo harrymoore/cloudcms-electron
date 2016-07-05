@@ -94,26 +94,6 @@
             return deferred.promise;
         }
         
-        function _queryNodes(query) {
-            var deferred = $q.defer();
-            query = query || {"_type": "n:node"};
-
-            getConnection(function() {
-                connection.queryNodes(query, {"limit": 100}, function (err, nodes) {
-                    if (err) 
-                    {
-                        deferred.reject(err);
-                        return;
-                    }
-
-                    deferred.resolve(nodes);
-                    return;
-                });
-            });
-
-            return deferred.promise;
-        }
-
         function queryNodes(query) {
             var nodes = [];
             var deferred = $q.defer();
@@ -121,15 +101,19 @@
 
             getConnection(function(connection) {
                 Chain(connection).trap(function(err) {
-                    deferred.reject(err);
+                    deferred.reject([err]);
                     return;
-                }).queryNodes(query, {"limit": 100}).then(function() {
-                    nodes = this;
+                })
+                .queryNodes(query, {"limit": 100})
+                .each(function(){
+                    nodes.push(JSON.parse(JSON.stringify(this)));
+                }).then(function() {
                     console.log("queryNodes result " + JSON.stringify(nodes));
-                    deferred.resolve(nodes);
-                    return;
+                    return deferred.resolve(nodes);
                 });
             });
+
+            return deferred.promise;
         }
     }
 })();

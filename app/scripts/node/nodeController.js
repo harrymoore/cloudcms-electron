@@ -80,7 +80,8 @@
         // }
         
         function getAllNodes() {
-            cloudCmsService.queryNodes().then(function (nodes) {
+            cloudCmsService.queryNodes().then(function (resultArray) {
+                var nodes = resultArray || [];
                 self.nodes = [].concat(nodes);
                 self.selected = nodes[0];
             });

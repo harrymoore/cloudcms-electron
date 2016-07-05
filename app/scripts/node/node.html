@@ -11,9 +11,9 @@
             <input required name="customerName" ng-model="_ctrl.filterText" ng-change="_ctrl.filter()">
         </md-input-container>
         <md-list>
-            <md-list-item ng-repeat="it in _ctrl.customers">
+            <md-list-item ng-repeat="it in _ctrl.nodes">
                 <md-button ng-click="_ctrl.selectCustomer(it, $index)" ng-class="{'selected' : it === _ctrl.selected }">
-                    {{it.name}}
+                    {{it.title}}
                 </md-button>
             </md-list-item>
         </md-list>
