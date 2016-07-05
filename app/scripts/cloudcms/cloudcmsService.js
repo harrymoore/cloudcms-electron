@@ -1,13 +1,20 @@
 (function () {
     'use strict';
     var Gitana = require("gitana");
+    var fs = require("fs");
 
-    var connection = null;
+    var gitanaConfig = JSON.parse("" + fs.readFileSync("./gitana.json"));
+    var branchName = "master";
+    
+    // debug only when using charles proxy ssl proxy when intercepting cloudcms api calls:
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     
     angular.module('app')
         .service('cloudCmsService', ['$q', CloudCmsService]);
     
     function CloudCmsService($q) {
+        var connection = null;
+
         return {
             connect: connect,
             getNodes: getNodesById,
@@ -25,8 +32,11 @@
                 return;
             }
 
-            connect().then(function (branch) {
-                connection = branch;
+            connect(gitanaConfig, branchName).then(function (resultArray) {
+                // queryNodes().then(function(){
+                //     console.log("queried for nodes: ");
+                // });
+                return callback(resultArray[0]);
             });
         }
 
@@ -43,14 +53,18 @@
                 this.datastore("content").trap(function(err) {
                     console.log("Failed to retrieve datastore: " + JSON.stringify(err));
                     deferred.reject(err);
+                    return;
 
                 }).readBranch(branchId || "master").trap(function(err) {
                     console.log("Failed to retrieve branch: " + JSON.stringify(err));
                     deferred.reject(err);
+                    return;
 
                 }).then(function () {
                     console.log("Connected: " + JSON.stringify(this));
-                    deferred.resolve(this);                    
+                    connection = this;
+                    deferred.resolve([connection]);
+                    return;
                 })
             });
             
@@ -80,7 +94,7 @@
             return deferred.promise;
         }
         
-        function queryNodes(query) {
+        function _queryNodes(query) {
             var deferred = $q.defer();
             query = query || {"_type": "n:node"};
 
@@ -93,10 +107,29 @@
                     }
 
                     deferred.resolve(nodes);
+                    return;
                 });
             });
 
             return deferred.promise;
+        }
+
+        function queryNodes(query) {
+            var nodes = [];
+            var deferred = $q.defer();
+            query = query || {"_type": "n:node"};
+
+            getConnection(function(connection) {
+                Chain(connection).trap(function(err) {
+                    deferred.reject(err);
+                    return;
+                }).queryNodes(query, {"limit": 100}).then(function() {
+                    nodes = this;
+                    console.log("queryNodes result " + JSON.stringify(nodes));
+                    deferred.resolve(nodes);
+                    return;
+                });
+            });
         }
     }
 })();
